@@ -109,6 +109,18 @@ io.on('connection', (socket) => {
         });
     });
 
+    socket.on(ACTIONS.CHAT_MESSAGE, ({ roomId, message }) => {
+        const clients = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
+        clients.forEach((clientId) => {
+            if (clientId !== socket.id) {
+                console.log(message);
+                io.to(clientId).emit(ACTIONS.CHAT_MESSAGE, {
+                    message
+                });
+            }
+        });
+    });
+
     const leaveRoom = () => {
         const { rooms } = socket;
         Array.from(rooms).forEach((roomId) => {
